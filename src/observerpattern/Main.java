@@ -17,7 +17,7 @@ class MyEventArgs extends EventArgs {
 
 interface IEventHandler {
 
-    public void OnEvent(Object sender, EventArgs e);
+    public void OnEvent(Object s, EventArgs e);
 }
 
 abstract class EventHandler implements IEventHandler {
@@ -61,13 +61,7 @@ class Listener {
     }
 }
 
-abstract class ClickEventHandler extends EventHandler {
 
-    ClickEventHandler(EventArgs args) {
-        super(args);
-    }
-
-}
 
 class ListeningObject {
 
@@ -93,24 +87,24 @@ public class Main {
 
     public static void main(String[] args) {
 
-        IEventHandler clickhandler = new ClickEventHandler(new MyEventArgs("MyEventArgs: Event Args")) {
+        IEventHandler clickhandler = new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
             @Override
-            public void OnEvent(Object sender, EventArgs e) {
-                out.println("CLICK " + ((MyEventArgs) e).message);
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " CLICK " + ((MyEventArgs) e).message);
             }
         };
 
-        IEventHandler clickhandler2 = new ClickEventHandler(new MyEventArgs("MyEventArgs: Event Args")) {
+        IEventHandler clickhandler2 = new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
             @Override
-            public void OnEvent(Object sender, EventArgs e) {
-                out.println("CLICK 2 " + ((MyEventArgs) e).message);
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " CLICK 2 " + ((MyEventArgs) e).message);
             }
         };
 
         IEventHandler keyuphandler = new EventHandler() {
             @Override
-            public void OnEvent(Object sender, EventArgs e) {
-                out.println("KEY UP");
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " KEY UP ");
             }
         };
 
@@ -119,6 +113,13 @@ public class Main {
         m.ClickEventListener.addEventHandler(clickhandler);
         m.ClickEventListener.addEventHandler(clickhandler2);
         m.KeyUpEventListener.addEventHandler(keyuphandler);
+        
+          m.KeyUpEventListener.addEventHandler(new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
+            @Override
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " CLICK 2 " + ((MyEventArgs) e).message);
+            }
+          }         );
 
         m.Click();
         m.KeyUp();
