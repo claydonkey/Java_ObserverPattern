@@ -6,15 +6,12 @@
 
 package com.claydonkey.ObserverPattern;
 
+interface IEventHandler {
 
-class EventArgs {
+    public void OnEvent(Object s, EventArgs e);
 }
 
-class MyEventArgs extends EventArgs {
+abstract class EventHandler implements IEventHandler { }// This is analogous to a FUNCTOR or A DELEGATE in the CLI
 
-    public MyEventArgs(String str) {
-        message = str;
-    }
-    public String message;
-}
+   
 
