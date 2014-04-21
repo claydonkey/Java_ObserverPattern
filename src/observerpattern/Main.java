@@ -4,8 +4,7 @@ import static java.lang.System.*;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-class EventArgs {
-}
+class EventArgs {}
 
 class MyEventArgs extends EventArgs {
 
@@ -20,26 +19,14 @@ interface IEventHandler {
     public void OnEvent(Object s, EventArgs e);
 }
 
-abstract class EventHandler implements IEventHandler {
+abstract class EventHandler implements IEventHandler { // This is analogous to a FUNCTOR or A DELEGATE in the CLI
 
-    EventHandler() {
-    }
-
-    EventHandler(EventArgs args) {
-        _args = args;
-    }
-    EventArgs _args;
-
+    EventHandler() {}
 }
 
 // Event source
-class Listener {
-
-    private Object _obj;
-
-    public Listener(Object obj) {
-        this._obj = obj;
-    }
+class Listener {  //Same as Observable and Listener objects in the Observer Design Pattern
+  
 
     protected ArrayList _listeners;
 
@@ -50,58 +37,77 @@ class Listener {
         _listeners.add(eventhandler);
     }
 
-    protected void update() {
+    protected void update(Object o, EventArgs e) {
         if (_listeners != null & !_listeners.isEmpty()) {
             ListIterator itr = _listeners.listIterator();
             while (itr.hasNext()) {
                 EventHandler eventhandler = (EventHandler) itr.next();
-                eventhandler.OnEvent(_obj, eventhandler._args);
+                eventhandler.OnEvent(o, e);
             }
         }
     }
 }
 
-
-
 class ListeningObject {
 
-    Listener ClickEventListener;
-    Listener KeyUpEventListener;
+    Listener Click;
+    Listener KeyUp;
 
     public ListeningObject() {
-        ClickEventListener = new Listener(this);
-        KeyUpEventListener = new Listener(this);
+        Click = new Listener();
+        KeyUp = new Listener();
     }
 
-    protected void Click() {
-        ClickEventListener.update();
+    protected void OnClick(EventArgs e) {
+        Click.update(this,e);
     }
 
-    protected void KeyUp() {
-        KeyUpEventListener.update();
+    protected void OnKeyUp(EventArgs e) {
+       KeyUp.update(this,e);
     }
 
 }
 
 public class Main {
-
-    public static void main(String[] args) {
-
-        IEventHandler clickhandler = new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
+ IEventHandler ListeningObject_Click1 = new EventHandler() {
             @Override
             public void OnEvent(Object s, EventArgs e) {
                 out.println(s.toString() + " CLICK " + ((MyEventArgs) e).message);
             }
         };
 
-        IEventHandler clickhandler2 = new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
+        IEventHandler ListeningObject_Click2 = new EventHandler() {
             @Override
             public void OnEvent(Object s, EventArgs e) {
                 out.println(s.toString() + " CLICK 2 " + ((MyEventArgs) e).message);
             }
         };
 
-        IEventHandler keyuphandler = new EventHandler() {
+        IEventHandler ListeningObject_KeyUp = new EventHandler() {
+            @Override
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " KEY UP ");
+            }
+        };
+    public static void main(String[] args) {
+
+        
+        //HERE THE FUNCTOR has been used for an anonomous method - much like a lambda in the CLI
+        IEventHandler ListeningObject_Click1 = new EventHandler() {
+            @Override
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " CLICK " + ((MyEventArgs) e).message);
+            }
+        };
+
+        IEventHandler ListeningObject_Click2 = new EventHandler() {
+            @Override
+            public void OnEvent(Object s, EventArgs e) {
+                out.println(s.toString() + " CLICK 2 " + ((MyEventArgs) e).message);
+            }
+        };
+
+        IEventHandler ListeningObject_KeyUp = new EventHandler() {
             @Override
             public void OnEvent(Object s, EventArgs e) {
                 out.println(s.toString() + " KEY UP ");
@@ -109,20 +115,18 @@ public class Main {
         };
 
         ListeningObject m = new ListeningObject();
-
-        m.ClickEventListener.addEventHandler(clickhandler);
-        m.ClickEventListener.addEventHandler(clickhandler2);
-        m.KeyUpEventListener.addEventHandler(keyuphandler);
+        m.Click.addEventHandler(ListeningObject_Click1); // Analogous to  m.OnClick += 
+        m.Click.addEventHandler(ListeningObject_Click2);
+        m.KeyUp.addEventHandler(ListeningObject_KeyUp);
         
-          m.KeyUpEventListener.addEventHandler(new EventHandler(new MyEventArgs(" MyEventArgs: Event Args")) {
+          m.KeyUp.addEventHandler(new EventHandler() {
             @Override
             public void OnEvent(Object s, EventArgs e) {
                 out.println(s.toString() + " CLICK 2 " + ((MyEventArgs) e).message);
             }
           }         );
-
-        m.Click();
-        m.KeyUp();
+        m.OnClick(new MyEventArgs(" MyEventArgs: Event Args"));
+        m.OnKeyUp(new MyEventArgs(" MyEventArgs: Event Args"));
 
     }
 
